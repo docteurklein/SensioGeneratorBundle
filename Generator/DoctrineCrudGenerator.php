@@ -37,11 +37,13 @@ class DoctrineCrudGenerator extends Generator
      *
      * @param Filesystem $filesystem A Filesystem instance
      * @param string $skeletonDir Path to the skeleton directory
+     * @param string $subDir Path to the controller directory
      */
-    public function __construct(Filesystem $filesystem, $skeletonDir)
+    public function __construct(Filesystem $filesystem, $skeletonDir, $subDir)
     {
         $this->filesystem  = $filesystem;
         $this->skeletonDir = $skeletonDir;
+        $this->subDir = $subDir;
     }
 
     /**
@@ -60,7 +62,7 @@ class DoctrineCrudGenerator extends Generator
     {
         $this->routePrefix = $routePrefix;
         $this->routeNamePrefix = str_replace('/', '_', $routePrefix);
-        $this->actions = $needWriteActions ? array('index', 'show', 'new', 'edit', 'delete') : array('index', 'show');
+        $this->actions = $needWriteActions ? array('index', 'filter', 'show', 'new', 'edit', 'delete') : array('index', 'filter', 'show');
 
         if (count($metadata->identifier) > 1) {
             throw new \RuntimeException('The CRUD generator does not support entity classes with multiple primary keys.');
@@ -77,7 +79,7 @@ class DoctrineCrudGenerator extends Generator
 
         $this->generateControllerClass();
 
-        $dir = sprintf('%s/Resources/views/%s', $this->bundle->getPath(), str_replace('\\', '/', $this->entity));
+        $dir = sprintf('%s/Resources/views/%s/%s', $this->bundle->getPath(), $this->subDir, str_replace('\\', '/', $this->entity));
 
         if (!file_exists($dir)) {
             $this->filesystem->mkdir($dir, 0777);
@@ -132,7 +134,7 @@ class DoctrineCrudGenerator extends Generator
         }
 
         $target = sprintf(
-            '%s/Resources/config/routing/%s.%s', 
+            '%s/Resources/config/routing/%s.%s',
             $this->bundle->getPath(),
             strtolower(str_replace('\\', '_', $this->entity)),
             $this->format
@@ -160,8 +162,9 @@ class DoctrineCrudGenerator extends Generator
         $entityNamespace = implode('\\', $parts);
 
         $target = sprintf(
-            '%s/Controller/%s/%sController.php',
+            '%s/Controller/%s/%s/%sController.php',
             $dir,
+            $this->subDir,
             str_replace('\\', '/', $entityNamespace),
             $entityClass
         );

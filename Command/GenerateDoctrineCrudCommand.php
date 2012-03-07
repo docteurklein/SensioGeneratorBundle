@@ -43,7 +43,10 @@ class GenerateDoctrineCrudCommand extends GenerateDoctrineCommand
                 new InputOption('entity', '', InputOption::VALUE_REQUIRED, 'The entity class name to initialize (shortcut notation)'),
                 new InputOption('route-prefix', '', InputOption::VALUE_REQUIRED, 'The route prefix'),
                 new InputOption('with-write', '', InputOption::VALUE_NONE, 'Whether or not to generate create, new and delete actions'),
+                new InputOption('with-filter', '', InputOption::VALUE_NONE, 'Whether or not to generate filter form'),
+                new InputOption('sub-dir', '', InputOption::VALUE_REQUIRED, 'The sub directory where to put controller and views', ''),
                 new InputOption('format', '', InputOption::VALUE_REQUIRED, 'Use the format for configuration files (php, xml, yml, or annotation)', 'annotation'),
+                new InputOption('skeleton', '', InputOption::VALUE_REQUIRED, 'skeletons to use', 'Default'),
             ))
             ->setDescription('Generates a CRUD based on a Doctrine entity')
             ->setHelp(<<<EOT
@@ -91,7 +94,7 @@ EOT
         $metadata    = $this->getEntityMetadata($entityClass);
         $bundle      = $this->getContainer()->get('kernel')->getBundle($bundle);
 
-        $generator = $this->getGenerator();
+        $generator = $this->getGenerator($input->getOption('skeleton'), $input->getOption('sub-dir'));
         $generator->generate($bundle, $entity, $metadata[0], $format, $prefix, $withWrite);
 
         $output->writeln('Generating the CRUD code: <info>OK</info>');
@@ -236,10 +239,16 @@ EOT
         return $prefix;
     }
 
-    protected function getGenerator()
+
+    protected function locateResource($name)
+    {
+        return $this->getContainer()->get('kernel')->locateResource($name);
+    }
+
+    protected function getGenerator($skeleton = 'Default', $subDir = '')
     {
         if (null === $this->generator) {
-            $this->generator = new DoctrineCrudGenerator($this->getContainer()->get('filesystem'), __DIR__.'/../Resources/skeleton/crud');
+            $this->generator = new DoctrineCrudGenerator($this->getContainer()->get('filesystem'), $this->locateResource(sprintf('@SensioGeneratorBundle/Resources/skeleton/crud/%s', $skeleton)), $subDir);
         }
 
         return $this->generator;
@@ -250,10 +259,10 @@ EOT
         $this->generator = $generator;
     }
 
-    protected function getFormGenerator()
+    protected function getFormGenerator($skeleton = 'Default')
     {
         if (null === $this->formGenerator) {
-            $this->formGenerator = new DoctrineFormGenerator($this->getContainer()->get('filesystem'),  __DIR__.'/../Resources/skeleton/form');
+            $this->formGenerator = new DoctrineFormGenerator($this->getContainer()->get('filesystem'),  $this->locateResource(sprintf('@SensioGeneratorBundle/Resources/skeleton/form/%s', $skeleton)));
         }
 
         return $this->formGenerator;
