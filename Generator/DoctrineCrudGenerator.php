@@ -87,6 +87,10 @@ class DoctrineCrudGenerator extends Generator
 
         $this->generateIndexView($dir);
 
+        if (in_array('filter', $this->actions)) {
+            $this->generateFilterView($dir);
+        }
+
         if (in_array('show', $this->actions)) {
             $this->generateShowView($dir);
         }
@@ -146,6 +150,7 @@ class DoctrineCrudGenerator extends Generator
             'route_name_prefix' => $this->routeNamePrefix,
             'bundle'            => $this->bundle->getName(),
             'entity'            => $this->entity,
+            'subDir'            => $this->subDir,
         ));
     }
 
@@ -183,6 +188,7 @@ class DoctrineCrudGenerator extends Generator
             'entity_class'      => $entityClass,
             'namespace'         => $this->bundle->getNamespace(),
             'entity_namespace'  => $entityNamespace,
+            'subDir'            => $this->subDir,
             'format'            => $this->format,
         ));
     }
@@ -220,6 +226,7 @@ class DoctrineCrudGenerator extends Generator
     private function generateIndexView($dir)
     {
         $this->renderFile($this->skeletonDir, 'views/index.html.twig', $dir.'/index.html.twig', array(
+            'subDir'            => $this->subDir,
             'dir'               => $this->skeletonDir,
             'entity'            => $this->entity,
             'fields'            => $this->metadata->fieldMappings,
@@ -227,6 +234,25 @@ class DoctrineCrudGenerator extends Generator
             'record_actions'    => $this->getRecordActions(),
             'route_prefix'      => $this->routePrefix,
             'route_name_prefix' => $this->routeNamePrefix,
+            'filter_template_name' => sprintf('%s:%s/%s:%s', $this->bundle->getName(), $this->subDir, str_replace('\\', '/', $this->entity), 'filter.html.twig'),
+        ));
+    }
+
+    /**
+     * Generates the filter.html.twig template in the final bundle.
+     *
+     * @param string $dir The path to the folder that hosts templates in the bundle
+     */
+    private function generateFilterView($dir)
+    {
+        $this->renderFile($this->skeletonDir, 'views/filter.html.twig', $dir.'/filter.html.twig', array(
+            'bundle'            => $this->bundle->getName(),
+            'subDir'            => $this->subDir,
+            'dir'               => $this->skeletonDir,
+            'route_prefix'      => $this->routePrefix,
+            'route_name_prefix' => $this->routeNamePrefix,
+            'entity'            => $this->entity,
+            'actions'           => $this->actions,
         ));
     }
 

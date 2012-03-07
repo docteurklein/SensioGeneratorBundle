@@ -22,6 +22,7 @@ use Sensio\Bundle\GeneratorBundle\Generator\DoctrineFormGenerator;
 use Sensio\Bundle\GeneratorBundle\Command\Helper\DialogHelper;
 use Sensio\Bundle\GeneratorBundle\Manipulator\RoutingManipulator;
 use Doctrine\ORM\Mapping\MappingException;
+use Sensio\Bundle\GeneratorBundle\Generator\DoctrineFormFilterGenerator;
 
 /**
  * Generates a CRUD for a Doctrine entity.
@@ -32,6 +33,8 @@ class GenerateDoctrineCrudCommand extends GenerateDoctrineCommand
 {
     private $generator;
     private $formGenerator;
+    private $formFilterGenerator;
+    private $skeleton;
 
     /**
      * @see Command
@@ -93,8 +96,9 @@ EOT
         $entityClass = $this->getContainer()->get('doctrine')->getEntityNamespace($bundle).'\\'.$entity;
         $metadata    = $this->getEntityMetadata($entityClass);
         $bundle      = $this->getContainer()->get('kernel')->getBundle($bundle);
+        $this->skeleton = $input->getOption('skeleton');
 
-        $generator = $this->getGenerator($input->getOption('skeleton'), $input->getOption('sub-dir'));
+        $generator = $this->getGenerator($this->skeleton, $input->getOption('sub-dir'));
         $generator->generate($bundle, $entity, $metadata[0], $format, $prefix, $withWrite);
 
         $output->writeln('Generating the CRUD code: <info>OK</info>');
@@ -106,6 +110,11 @@ EOT
         if ($withWrite) {
             $this->generateForm($bundle, $entity, $metadata);
             $output->writeln('Generating the Form code: <info>OK</info>');
+        }
+
+        if ($input->getOption('with-filter')) {
+            $this->generateFormFilter($bundle, $entity, $metadata);
+            $output->writeln('Generating the Form filter code: <info>OK</info>');
         }
 
         // routing
@@ -193,7 +202,17 @@ EOT
         try {
             $this->getFormGenerator()->generate($bundle, $entity, $metadata[0]);
         } catch (\RuntimeException $e ) {
-            // form already exists
+            // form already exists, oh really?
+        }
+    }
+
+    private function generateFormFilter($bundle, $entity, $metadata)
+    {
+        try {
+            $this->getFormFilterGenerator()->generate($bundle, $entity, $metadata[0]);
+        } catch (\RuntimeException $e ) {
+            var_dump($e->getMessage());
+            // form filter already exists
         }
     }
 
@@ -259,10 +278,10 @@ EOT
         $this->generator = $generator;
     }
 
-    protected function getFormGenerator($skeleton = 'Default')
+    protected function getFormGenerator()
     {
         if (null === $this->formGenerator) {
-            $this->formGenerator = new DoctrineFormGenerator($this->getContainer()->get('filesystem'),  $this->locateResource(sprintf('@SensioGeneratorBundle/Resources/skeleton/form/%s', $skeleton)));
+            $this->formGenerator = new DoctrineFormGenerator($this->getContainer()->get('filesystem'),  $this->locateResource(sprintf('@SensioGeneratorBundle/Resources/skeleton/form/%s', $this->skeleton)));
         }
 
         return $this->formGenerator;
@@ -282,4 +301,19 @@ EOT
 
         return $dialog;
     }
+
+    protected function getFormFilterGenerator()
+    {
+        if (null === $this->formFilterGenerator) {
+            $this->formFilterGenerator = new DoctrineFormFilterGenerator($this->getContainer()->get('filesystem'),  $this->locateResource(sprintf('@SensioGeneratorBundle/Resources/skeleton/form/%s', $this->skeleton)));
+        }
+
+        return $this->formFilterGenerator;
+    }
+
+    public function setFormFilterGenerator(DoctrineFormFilterGenerator $formGenerator)
+    {
+        $this->formFilterGenerator = $formGenerator;
+    }
+
 }

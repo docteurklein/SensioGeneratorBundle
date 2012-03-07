@@ -58,10 +58,10 @@ class DoctrineFormFilterGenerator extends Generator
 
         $this->className = $entityClass.'FilterType';
         $dirPath         = $bundle->getPath().'/Form';
-        $this->classPath = $dirPath.'/'.str_replace('\\', '/', $entity).'Type.php';
+        $this->classPath = $dirPath.'/'.str_replace('\\', '/', $entity).'FilterType.php';
 
         if (file_exists($this->classPath)) {
-            throw new \RuntimeException(sprintf('Unable to generate the %s form class as it already exists under the %s file', $this->className, $this->classPath));
+            throw new \RuntimeException(sprintf('Unable to generate the %s form filter class as it already exists under the %s file', $this->className, $this->classPath));
         }
 
         if (count($metadata->identifier) > 1) {
