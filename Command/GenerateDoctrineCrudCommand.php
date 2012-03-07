@@ -258,7 +258,6 @@ EOT
         return $prefix;
     }
 
-
     protected function locateResource($name)
     {
         return $this->getContainer()->get('kernel')->locateResource($name);
@@ -267,7 +266,7 @@ EOT
     protected function getGenerator($skeleton = 'Default', $subDir = '')
     {
         if (null === $this->generator) {
-            $this->generator = new DoctrineCrudGenerator($this->getContainer()->get('filesystem'), $this->locateResource(sprintf('@SensioGeneratorBundle/Resources/skeleton/crud/%s', $skeleton)), $subDir);
+            $this->generator = new DoctrineCrudGenerator($this->getContainer()->get('filesystem'), $this->getContainer()->get('kernel'), $skeleton, 'Default', $subDir);
         }
 
         return $this->generator;

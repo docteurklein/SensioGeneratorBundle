@@ -18,13 +18,31 @@ namespace Sensio\Bundle\GeneratorBundle\Generator;
  */
 class Generator
 {
-    protected function renderFile($skeletonDir, $template, $target, $parameters)
+    protected function renderFile($dir, $template, $target, $parameters)
     {
         if (!is_dir(dirname($target))) {
             mkdir(dirname($target), 0777, true);
         }
 
-        $twig = new \Twig_Environment(new \Twig_Loader_Filesystem($skeletonDir), array(
+        $twig = new \Twig_Environment(new \Twig_Loader_Filesystem($dir), array(
+            'debug'            => true,
+            'cache'            => false,
+            'strict_variables' => true,
+            'autoescape'       => false,
+        ));
+
+        file_put_contents($target, $twig->render($template, $parameters));
+    }
+
+    protected function renderThemeFile(array $paths, $target, $parameters)
+    {
+        if (!is_dir(dirname($target))) {
+            mkdir(dirname($target), 0777, true);
+        }
+
+        list($dir, $template) = $paths;
+
+        $twig = new \Twig_Environment(new \Twig_Loader_Filesystem($dir), array(
             'debug'            => true,
             'cache'            => false,
             'strict_variables' => true,
