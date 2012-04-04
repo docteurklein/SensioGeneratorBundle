@@ -49,6 +49,16 @@ class DoctrineCrudGenerator extends Generator
         $this->subDir = $subDir;
     }
 
+    protected function getEntitySingular()
+    {
+        return strtolower($this->entity);
+    }
+
+    protected function getEntityPlural()
+    {
+        return strtolower($this->entity).'s';
+    }
+
     protected function locateResource($name)
     {
         $dir = sprintf('@SensioGeneratorBundle/Resources/skeleton/crud/%s', $this->skeletonTheme);
@@ -248,6 +258,8 @@ class DoctrineCrudGenerator extends Generator
         $this->renderThemeFile($this->locateResource('views/index.html.twig'), $dir.'/index.html.twig', array(
             'subDir'            => $this->subDir,
             'entity'            => $this->entity,
+            'entity_singular'   => $this->getEntitySingular(),
+            'entity_plural'     => $this->getEntityPlural(),
             'fields'            => $this->metadata->fieldMappings,
             'actions'           => $this->actions,
             'record_actions'    => $this->getRecordActions(),
@@ -270,6 +282,8 @@ class DoctrineCrudGenerator extends Generator
             'route_prefix'      => $this->routePrefix,
             'route_name_prefix' => $this->routeNamePrefix,
             'entity'            => $this->entity,
+            'entity_singular'   => $this->getEntitySingular(),
+            'entity_plural'     => $this->getEntityPlural(),
             'actions'           => $this->actions,
         ));
     }
@@ -283,6 +297,8 @@ class DoctrineCrudGenerator extends Generator
     {
         $this->renderThemeFile($this->locateResource('views/show.html.twig'), $dir.'/show.html.twig', array(
             'entity'            => $this->entity,
+            'entity_singular'   => $this->getEntitySingular(),
+            'entity_plural'     => $this->getEntityPlural(),
             'fields'            => $this->metadata->fieldMappings,
             'actions'           => $this->actions,
             'route_prefix'      => $this->routePrefix,
@@ -301,6 +317,8 @@ class DoctrineCrudGenerator extends Generator
             'route_prefix'      => $this->routePrefix,
             'route_name_prefix' => $this->routeNamePrefix,
             'entity'            => $this->entity,
+            'entity_singular'   => $this->getEntitySingular(),
+            'entity_plural'     => $this->getEntityPlural(),
             'actions'           => $this->actions,
         ));
     }
@@ -316,6 +334,8 @@ class DoctrineCrudGenerator extends Generator
             'route_prefix'      => $this->routePrefix,
             'route_name_prefix' => $this->routeNamePrefix,
             'entity'            => $this->entity,
+            'entity_singular'   => $this->getEntitySingular(),
+            'entity_plural'     => $this->getEntityPlural(),
             'actions'           => $this->actions,
         ));
     }
