@@ -94,7 +94,7 @@ class DoctrineCrudGenerator extends Generator
     {
         $this->routePrefix = $routePrefix;
         $this->routeNamePrefix = str_replace('/', '_', $routePrefix);
-        $this->actions = $needWriteActions ? array('index', 'filter', 'show', 'new', 'edit', 'delete') : array('index', 'filter', 'show');
+        $this->actions = $needWriteActions ? array('list', 'filter', 'show', 'new', 'edit', 'delete') : array('list', 'filter', 'show');
 
         if (count($metadata->identifier) > 1) {
             throw new \RuntimeException('The CRUD generator does not support entity classes with multiple primary keys.');
@@ -117,7 +117,7 @@ class DoctrineCrudGenerator extends Generator
             $this->filesystem->mkdir($dir, 0777);
         }
 
-        $this->generateIndexView($dir);
+        $this->generateListView($dir);
 
         if (in_array('filter', $this->actions)) {
             $this->generateFilterView($dir);
@@ -249,13 +249,13 @@ class DoctrineCrudGenerator extends Generator
     }
 
     /**
-     * Generates the index.html.twig template in the final bundle.
+     * Generates the list.html.twig template in the final bundle.
      *
      * @param string $dir The path to the folder that hosts templates in the bundle
      */
-    private function generateIndexView($dir)
+    private function generateListView($dir)
     {
-        $this->renderThemeFile($this->locateResource('views/index.html.twig'), $dir.'/index.html.twig', array(
+        $this->renderThemeFile($this->locateResource('views/list.html.twig'), $dir.'/list.html.twig', array(
             'subDir'            => $this->subDir,
             'entity'            => $this->entity,
             'entity_singular'   => $this->getEntitySingular(),
